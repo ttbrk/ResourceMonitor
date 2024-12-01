@@ -19,9 +19,11 @@ namespace ResourceMonitor;
 
 public partial class MainWindow : Window
 {
+
+    private static double m_dMemoryUsagePercentage = 0.0;
     private static double m_dCPUusagePercentage;
     private static double m_dGPUusagePercentage;
-    private const int m_iUpdateInterval = 1000; // 1秒
+    private const int m_iUpdateInterval = 100; // 1秒
     private double[] memoryUsageData = new double[60]; // 最新60秒のデータ
     // private double canvasWidth;
     // private double canvasHeight;
@@ -45,17 +47,19 @@ public partial class MainWindow : Window
                 // データの更新
                 Dispatcher.Invoke(() =>
                 {
-                    Random rnd = new Random();
-                    // MemoryGraph.Draw_Memory(MemoryGraphCanvas, rnd.Next(1, 100));
-                    // MemoryGraph.Draw_Memory(MemoryGraphCanvas, 81.0);
+                    // if (99.0 < m_dMemoryUsagePercentage)
+                    // {
+                    //     m_dMemoryUsagePercentage = 0.0;
+                    // }
+                    // m_dMemoryUsagePercentage = m_dMemoryUsagePercentage + 0.5;
+                    // MemoryGraph.Draw_Memory(MemoryGraphCanvas, m_dMemoryUsagePercentage);
                     MemoryGraph.Draw_Memory(MemoryGraphCanvas, Utility.GetMemoryUsagePercentage());
                     UpdateMemoryUsage(Utility.GetMemoryUsagePercentage());
+
                     m_dCPUusagePercentage = Utility.GetCpuUsagePercentage();
                     m_dGPUusagePercentage = 12.5;
-                    UsageGraph.Draw_Usage(CPUGraphCanvas, m_dCPUusagePercentage, $"CPU Usage: {m_dCPUusagePercentage:F1}%");
-                    // UpdateCpuUsage(Utility.GetCpuUsagePercentage());
-                    // UpdateGpuUsage(12.5);
-                    UsageGraph.Draw_Usage(GPUGraphCanvas, m_dGPUusagePercentage, $"GPU Usage: {m_dGPUusagePercentage:F1}%");
+                    UsageGraph.Draw_Usage(CPUGraphCanvas, m_dCPUusagePercentage, "CPU Usage");
+                    UsageGraph.Draw_Usage(GPUGraphCanvas, m_dGPUusagePercentage, "GPU Usage");
                 });
 
                 Thread.Sleep(m_iUpdateInterval);

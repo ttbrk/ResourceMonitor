@@ -7,8 +7,6 @@ namespace ResourceMonitor;
 
 public class MemoryGraph
 {
-    private static Int16 m_iGageCount = 50;
-
     //円部分関連変数
     private static Int16 m_iCircleStartAngle = 240;
     private static Int16 m_iCircleEndAngle = 90;
@@ -37,7 +35,9 @@ public class MemoryGraph
     private static Int16 m_iBarOffset = 30;
     private static Int16 m_iBarHeightchangepoint = 40;
     private static double m_dBarHeightchangeRatio = 0.7;
-    private static Int16 m_iOnebarvalue = (Int16)(100 / m_iGageCount);
+    private static Int16 m_iOnebarvalue = (Int16)(Define.VALUE_HUNDRED / Define.MEMORY_GAGE_COUNT);
+
+
 
     /// <summary>
     /// グラフの下地を描画する
@@ -50,7 +50,7 @@ public class MemoryGraph
         double iOutRadius   = 0;
         double dBarHeight;
 
-        for (Int16 i = 0; i < m_iGageCount; i++)
+        for (Int16 i = 0; i < Define.MEMORY_GAGE_COUNT; i++)
         {
             dBarHeight = iOutRadius - m_iInRadius;
             // 平行四辺形の頂点を定義
@@ -117,7 +117,8 @@ public class MemoryGraph
                     };
                     m_dXLTop    = m_dXRTop;
                     m_dXLBottom = m_dXRBottom;
-                } else if (iCircleEndCnt == 3)
+                }
+                else if (iCircleEndCnt == 3)
                 {
                     m_dXLTop    = m_dXLTop + 2;
                     m_dXLBottom = m_dXLBottom + 2;
@@ -133,7 +134,8 @@ public class MemoryGraph
                     };
                     m_dXLTop    = m_dXRTop;
                     m_dXLBottom = m_dXRBottom;
-                } else if (iCircleEndCnt != 1)
+                }
+                else if (iCircleEndCnt != 1)
                 {
                     double x = m_iCenterX - 2  + iCircleEndCnt * (m_iBarWidth + 2);
                     //ポイントは、左上 -> 右上 -> 右下 -> 左下 の順番
@@ -159,7 +161,7 @@ public class MemoryGraph
             _Targetcavas.Children.Add(polygon);
 
 
-            if ((m_iOnebarvalue * i % 10 == 0) && (iCircleEndCnt <= 1))
+            if ((m_iOnebarvalue * i % Define.VALUE_TEN == 0) && (iCircleEndCnt <= 1))
             {
                 double dangle = m_iCircleStartAngle - m_iCircleBarOffset * i + m_iCircleBarOffset / 2;
                 Line Tick;
@@ -176,7 +178,7 @@ public class MemoryGraph
             }
 
             // TextBlockの生成
-            if (m_iOnebarvalue * (i+1) % 10 == 0)
+            if (m_iOnebarvalue * (i+1) % Define.VALUE_TEN == 0)
             {
                 TextBlock scaletextBlock = new TextBlock
                 {
@@ -190,31 +192,36 @@ public class MemoryGraph
                     Point TextPoint = points[0];
                     if (m_iOnebarvalue * (i+1) == 10)
                     {
-                        Canvas.SetLeft(scaletextBlock, TextPoint.X - 5);
+                        Canvas.SetLeft(scaletextBlock, TextPoint.X - 05);
                         Canvas.SetTop(scaletextBlock,  TextPoint.Y - 25);
-                    } else if (m_iOnebarvalue * (i+1) == 20)
+                    }
+                    else if (m_iOnebarvalue * (i+1) == 20)
                     {
-                        Canvas.SetLeft(scaletextBlock, TextPoint.X + 5);
+                        Canvas.SetLeft(scaletextBlock, TextPoint.X + 05);
                         Canvas.SetTop(scaletextBlock,  TextPoint.Y - 20);
-                    } else if (m_iOnebarvalue * (i+1) == 30)
+                    }
+                    else if (m_iOnebarvalue * (i+1) == 30)
                     {
                         Canvas.SetLeft(scaletextBlock, TextPoint.X + 10);
                         Canvas.SetTop(scaletextBlock,  TextPoint.Y - 15);
-                    } else if (m_iOnebarvalue * (i+1) == 40)
-                    {
-                        Canvas.SetLeft(scaletextBlock, TextPoint.X + 10);
-                        Canvas.SetTop(scaletextBlock,  TextPoint.Y - 5);
-                    } else if (m_iOnebarvalue * (i+1) == 50)
-                    {
-                        Canvas.SetLeft(scaletextBlock, TextPoint.X + 10);
-                        Canvas.SetTop(scaletextBlock,  TextPoint.Y + 3);
                     }
-                } else
+                    else if (m_iOnebarvalue * (i+1) == 40)
+                    {
+                        Canvas.SetLeft(scaletextBlock, TextPoint.X + 10);
+                        Canvas.SetTop(scaletextBlock,  TextPoint.Y - 05);
+                    }
+                    else if (m_iOnebarvalue * (i+1) == 50)
+                    {
+                        Canvas.SetLeft(scaletextBlock, TextPoint.X + 10);
+                        Canvas.SetTop(scaletextBlock,  TextPoint.Y);
+                    }
+                }
+                else
                 {
                     Point TextPoint = points[3];
                     // 位置を設定
-                    Canvas.SetLeft(scaletextBlock, TextPoint.X + 3);
-                    Canvas.SetTop(scaletextBlock, TextPoint.Y + 3);
+                    Canvas.SetLeft(scaletextBlock, TextPoint.X + 03);
+                    Canvas.SetTop(scaletextBlock,  TextPoint.Y);
                 }
                 // Canvasに追加
                 _Targetcavas.Children.Add(scaletextBlock);
@@ -228,7 +235,6 @@ public class MemoryGraph
         double dCircleLineStarY = m_iCenterY - m_iLineInRadius * Math.Sin(m_iLineStartAngle * Math.PI / 180);
         double dCircleLineEndX  = m_iCenterX + m_iLineInRadius * Math.Cos(m_iLineleEndAngle * Math.PI / 180);
         double dCircleLineEndY  = m_iCenterY - m_iLineInRadius * Math.Sin(m_iLineleEndAngle * Math.PI / 180);
-
         Path arc = new Path
         {
             Stroke = LineColor,
@@ -260,16 +266,22 @@ public class MemoryGraph
         };
         _Targetcavas.Children.Add(frameline);
 
-        frameline = new Line
+
+        PointCollection Linepoints = new PointCollection
         {
-            X1 = dCircleLineEndX,
-            Y1 = dCircleLineEndY,
-            X2 = dCircleLineEndX + 250,
-            Y2 = dCircleLineEndY,
+            new Point(dCircleLineEndX,                           dCircleLineEndY),
+            new Point(dCircleLineEndX + 250,                     dCircleLineEndY),
+            new Point(dCircleLineEndX + 250 + m_iBarWidth,       dCircleLineEndY * m_dBarHeightchangeRatio),
+            new Point(dCircleLineEndX + 250 + m_iBarWidth + 170, dCircleLineEndY * m_dBarHeightchangeRatio),
+            new Point(dCircleLineEndX + 250 + m_iBarWidth + 200, m_iCenterY - iOutRadius)
+        };
+        Polyline polyline = new Polyline
+        {
+            Points = Linepoints,
             Stroke = LineColor,
             StrokeThickness = 2
         };
-        _Targetcavas.Children.Add(frameline);
+        _Targetcavas.Children.Add(polyline);
     }
 
     // <summary>
@@ -286,7 +298,7 @@ public class MemoryGraph
         double iOutRadius   = 0;
         double dBarHeight;
 
-        for (Int16 i = 0; i < m_iGageCount; i++)
+        for (Int16 i = 0; i < Define.MEMORY_GAGE_COUNT; i++)
         {
             dBarHeight = iOutRadius - m_iInRadius;
             // 平行四辺形の頂点を定義
@@ -303,7 +315,7 @@ public class MemoryGraph
             {
                 bEndFlag = true;
                 dCurrentBarWidth = m_iBarWidth * (_dUsagePercentage - m_iOnebarvalue * i) / (double)m_iOnebarvalue;
-                dCircleBarWidth  = - m_dCircleBarWidth + ( 2* m_dCircleBarWidth * (_dUsagePercentage - m_iOnebarvalue * i) / (double)m_iOnebarvalue);
+                dCircleBarWidth  = - m_dCircleBarWidth + (2 * m_dCircleBarWidth * (_dUsagePercentage - m_iOnebarvalue * i) / (double)m_iOnebarvalue);
             }
 
             var points = new PointCollection{};
@@ -316,10 +328,10 @@ public class MemoryGraph
                               m_iCenterY - m_iInRadius * Math.Sin((m_iCircleStartAngle - m_iCircleBarOffset * i + m_dCircleBarWidth) * Math.PI / 180)),
                     new Point(m_iCenterX + iOutRadius  * Math.Cos((m_iCircleStartAngle - m_iCircleBarOffset * i + m_dCircleBarWidth) * Math.PI / 180),
                               m_iCenterY - iOutRadius  * Math.Sin((m_iCircleStartAngle - m_iCircleBarOffset * i + m_dCircleBarWidth) * Math.PI / 180)),
-                    new Point(m_iCenterX + iOutRadius  * Math.Cos((m_iCircleStartAngle - m_iCircleBarOffset * i - dCircleBarWidth) * Math.PI / 180),
-                              m_iCenterY - iOutRadius  * Math.Sin((m_iCircleStartAngle - m_iCircleBarOffset * i - dCircleBarWidth) * Math.PI / 180)),
-                    new Point(m_iCenterX + m_iInRadius * Math.Cos((m_iCircleStartAngle - m_iCircleBarOffset * i - dCircleBarWidth) * Math.PI / 180),
-                              m_iCenterY - m_iInRadius * Math.Sin((m_iCircleStartAngle - m_iCircleBarOffset * i - dCircleBarWidth) * Math.PI / 180)),
+                    new Point(m_iCenterX + iOutRadius  * Math.Cos((m_iCircleStartAngle - m_iCircleBarOffset * i - dCircleBarWidth)   * Math.PI / 180),
+                              m_iCenterY - iOutRadius  * Math.Sin((m_iCircleStartAngle - m_iCircleBarOffset * i - dCircleBarWidth)   * Math.PI / 180)),
+                    new Point(m_iCenterX + m_iInRadius * Math.Cos((m_iCircleStartAngle - m_iCircleBarOffset * i - dCircleBarWidth)   * Math.PI / 180),
+                              m_iCenterY - m_iInRadius * Math.Sin((m_iCircleStartAngle - m_iCircleBarOffset * i - dCircleBarWidth)   * Math.PI / 180)),
                 };
             }
             else 
@@ -361,7 +373,8 @@ public class MemoryGraph
                     };
                     m_dXLTop    = m_dXRTop;
                     m_dXLBottom = m_dXRBottom;
-                } else if (iCircleEndCnt == 3)
+                }
+                else if (iCircleEndCnt == 3)
                 {
                     m_dXLTop    = m_dXLTop + 2;
                     m_dXLBottom = m_dXLBottom + 2;
@@ -377,7 +390,8 @@ public class MemoryGraph
                     };
                     m_dXLTop    = m_dXRTop;
                     m_dXLBottom = m_dXRBottom;
-                } else if (iCircleEndCnt != 1)
+                }
+                else if (iCircleEndCnt != 1)
                 {
                     double x = m_iCenterX - 2  + iCircleEndCnt * (m_iBarWidth + 2);
                     //ポイントは、左上 -> 右上 -> 右下 -> 左下 の順番
@@ -394,14 +408,28 @@ public class MemoryGraph
 
             // 
             SolidColorBrush Color;
-            if (90 < _dUsagePercentage && _dUsagePercentage < m_iOnebarvalue * (i + 1)) {
+            if ( (Define.THRESHOLD_RED < _dUsagePercentage)
+                && (Define.THRESHOLD_RED < m_iOnebarvalue * (i + 1)) )
+            {
                 Color =  new SolidColorBrush((Color)ColorConverter.ConvertFromString("#f80002"));
-            } else if (80 < _dUsagePercentage && _dUsagePercentage < m_iOnebarvalue * (i + 1))
+            }
+            else if ( (Define.THRESHOLD_WHITE < _dUsagePercentage)
+                && (Define.THRESHOLD_WHITE < m_iOnebarvalue * (i + 1)) )
+            {
+                Color =  new SolidColorBrush((Color)ColorConverter.ConvertFromString("#fcfdfe"));
+            }
+            else if ( (Define.THRESHOLD_YELLO< _dUsagePercentage)
+                && (Define.THRESHOLD_YELLO < m_iOnebarvalue * (i + 1)) )
             {
                 Color =  new SolidColorBrush((Color)ColorConverter.ConvertFromString("#fdfc01"));
-            } else
+            }
+            else if ( (Define.THRESHOLD_GREEN < _dUsagePercentage)
+                && (Define.THRESHOLD_GREEN < m_iOnebarvalue * (i + 1)) )
             {
                 Color =  new SolidColorBrush((Color)ColorConverter.ConvertFromString("#02fa03"));
+            } else
+            {
+                Color =  new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2752f9"));
             }
             var polygon = new Polygon
             {

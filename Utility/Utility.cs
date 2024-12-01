@@ -3,6 +3,19 @@ using System.Management;
 
 namespace ResourceMonitor;
 
+public static class Define
+{
+    public const Int16 VALUE_TEN         = 10;     //
+    public const Int16 VALUE_HUNDRED     = 100;    //
+    public const Int16 MEMORY_GAGE_COUNT = 50;     //メモリ使用率のゲージ数
+    public const Int16 CPUGPU_GAGE_COUNT = 20;     //CPU、GPU使用率のゲージ数
+    public const Int16 THRESHOLD_RED     = 90;     //ゲージ色（→赤）変更閾値
+    public const Int16 THRESHOLD_WHITE   = 80;     //ゲージ色（→白）変更閾値
+    public const Int16 THRESHOLD_YELLO   = 70;     //ゲージ色（→黄）変更閾値
+    public const Int16 THRESHOLD_GREEN   = 20;     //ゲージ色（→緑）変更閾値
+}
+
+
 public class Utility
 {
     //メモリ関連
@@ -33,7 +46,7 @@ public class Utility
         // Calculate used memory
         m_dUsedMemory        = m_dTotalMemoryMB - m_dAvailableMemory;
         // Calculate memory usage percentage
-        m_dMemoryUsagePercent = m_dUsedMemory / m_dTotalMemoryMB * 100;
+        m_dMemoryUsagePercent = m_dUsedMemory / m_dTotalMemoryMB * Define.VALUE_HUNDRED;
         return m_dMemoryUsagePercent;
     }
 
@@ -41,10 +54,6 @@ public class Utility
     {
         return cpuCounter.NextValue();
     }
-
-
-
-
 
     public static double GetGpuUsagePercentage()
     {
@@ -55,7 +64,7 @@ public class Utility
         {
             ulong totalGpuMemory = (ulong)gpuCounters["DedicatedLimit"];
             ulong usedGpuMemory  = totalGpuMemory - (ulong)gpuCounters["DedicatedAvailable"];
-            gpuUsage             = (double)usedGpuMemory / totalGpuMemory * 100;
+            gpuUsage             = (double)usedGpuMemory / totalGpuMemory * Define.VALUE_HUNDRED;
         }
         return gpuUsage;
     }
