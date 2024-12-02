@@ -37,13 +37,16 @@ public class MemoryGraph
     private static double m_dBarHeightchangeRatio = 0.7;
     private static Int16 m_iOnebarvalue = (Int16)(Define.VALUE_HUNDRED / Define.MEMORY_GAGE_COUNT);
 
-
+    //テキストブロック配置位置
+    private static double m_dTitleTextBlockLeft = 0.0;
+    private static double m_dTitleTextBlockTop  = 0.0;
 
     /// <summary>
     /// グラフの下地を描画する
     /// </summary>
     /// <param name="_Targetcavas">描画対象のcanvas</param>
-    public static void BaseDraw_Memory(Canvas _Targetcavas)
+    /// <param name="_strTitle">表示するタイトル</param>
+    public static void BaseDraw_Memory(Canvas _Targetcavas, string _strTitle)
     {
         bool bCircleEndFlg  = false;
         Int16 iCircleEndCnt = 0;
@@ -182,8 +185,8 @@ public class MemoryGraph
             {
                 TextBlock scaletextBlock = new TextBlock
                 {
-                    Text = (m_iOnebarvalue * (i+1)).ToString(),
-                    FontSize = 15,
+                    Text       = (m_iOnebarvalue * (i+1)).ToString(),
+                    FontSize   = Define.FONTSIZE2,
                     Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#ffffff")),
                 };
                 if (iCircleEndCnt == 0)
@@ -266,7 +269,6 @@ public class MemoryGraph
         };
         _Targetcavas.Children.Add(frameline);
 
-
         PointCollection Linepoints = new PointCollection
         {
             new Point(dCircleLineEndX,                           dCircleLineEndY),
@@ -282,13 +284,30 @@ public class MemoryGraph
             StrokeThickness = 2
         };
         _Targetcavas.Children.Add(polyline);
+
+        // TextBlock(タイトル部分)の生成
+        TextBlock textBlock1 = new TextBlock
+        {
+            Text       = _strTitle,
+            FontSize   = Define.FONTSIZE2,
+            Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#b7c939")),
+        };
+        // 位置を設定
+        m_dTitleTextBlockLeft = dCircleLineEndX + 250 + m_iBarWidth;
+        m_dTitleTextBlockTop  = dCircleLineEndY * m_dBarHeightchangeRatio;
+        Canvas.SetLeft(textBlock1, m_dTitleTextBlockLeft);
+        Canvas.SetTop(textBlock1,  m_dTitleTextBlockTop);
+
+        // Canvasに追加
+        _Targetcavas.Children.Add(textBlock1);
+
     }
 
-    // <summary>
-    // 使用率に応じたグラフを描画する
-    // </summary>
-    // <param name="_Targetcavas">描画対象のcanvas</param>
-    // <param name="_dUsagePercentage">使用率</param>
+    /// <summary>
+    /// 使用率に応じたグラフを描画する
+    /// </summary>
+    /// <param name="_Targetcavas">描画対象のcanvas</param>
+    /// <param name="_dUsagePercentage">使用率</param>
     public static void Draw_Memory(Canvas _Targetcavas, double _dUsagePercentage)
     {
         _Targetcavas.Children.Clear();
@@ -443,6 +462,23 @@ public class MemoryGraph
                 break;
             }
         }
+
+        // 2つ目のTextBlock(使用率部分)の生成
+        TextBlock textBlock2 = new TextBlock
+        {
+            Text          = $"{_dUsagePercentage:F1}%",
+            FontSize      = Define.FONTSIZE2,
+            Width         = 45,
+            TextAlignment = TextAlignment.Right,
+            Foreground    = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#b7c939")),
+        };
+
+        // 位置を最初の TextBlock の右端に設定
+        Canvas.SetLeft(textBlock2, m_dTitleTextBlockLeft + 120);
+        Canvas.SetTop(textBlock2,  m_dTitleTextBlockTop);
+
+        // Canvas に追加
+        _Targetcavas.Children.Add(textBlock2);
     }
 }
 

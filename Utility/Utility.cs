@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Management;
+using System.Windows;
+using LibreHardwareMonitor.Hardware;
 
 namespace ResourceMonitor;
 
@@ -13,6 +15,8 @@ public static class Define
     public const Int16 THRESHOLD_WHITE   = 80;     //ゲージ色（→白）変更閾値
     public const Int16 THRESHOLD_YELLO   = 70;     //ゲージ色（→黄）変更閾値
     public const Int16 THRESHOLD_GREEN   = 20;     //ゲージ色（→緑）変更閾値
+    public const Int16 FONTSIZE1         = 5;      //フォントサイズ（小）
+    public const Int16 FONTSIZE2         = 15;     //フォントサイズ（大）
 }
 
 
@@ -50,58 +54,110 @@ public class Utility
         return m_dMemoryUsagePercent;
     }
 
-    public static double GetCpuUsagePercentage()
+    public static (double dTemperature, double dUsage, double dClock) GetCpuInfo(Computer computer)
     {
-        return cpuCounter.NextValue();
-    }
-
-    public static double GetGpuUsagePercentage()
-    {
-        double gpuUsage = 0.0;
-        var searcher    = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_PerfFormattedData_GPUPerformanceCounters_GPUAdapterMemory");
-        var gpuCounters = searcher.Get().Cast<ManagementObject>().FirstOrDefault();
-        if (gpuCounters != null)
+        double _dTemperature = 0.0;
+        double _dUsage       = 0.0;
+        double _dClock       = 0.0;
+        foreach (IHardware hardware in computer.Hardware)
         {
-            ulong totalGpuMemory = (ulong)gpuCounters["DedicatedLimit"];
-            ulong usedGpuMemory  = totalGpuMemory - (ulong)gpuCounters["DedicatedAvailable"];
-            gpuUsage             = (double)usedGpuMemory / totalGpuMemory * Define.VALUE_HUNDRED;
+            // CPU に関連するハードウェアかチェック
+            if (hardware.HardwareType == HardwareType.Cpu)
+            {
+                hardware.Update(); // センサーを更新
+                // CPU センサー情報の取得
+                foreach (ISensor sensor in hardware.Sensors)
+                {
+                    // Console.WriteLine($"{sensor.Name}: {sensor.SensorType}  {sensor.Value}%");
+                    // センサーの種類が温度、使用率、クロックなどの場合
+                    if (sensor.SensorType == SensorType.Temperature)
+                    {
+                        if (sensor.Value != null)
+                        {
+                            _dTemperature = (double)sensor.Value;
+                        }
+                    }
+                    if (sensor.SensorType == SensorType.Load && sensor.Name.Equals("CPU Total"))
+                    {
+                        if (sensor.Value != null)
+                        {
+                            _dUsage = _dUsage + (double)sensor.Value;
+                        }
+                    }
+                    if (sensor.SensorType == SensorType.Clock)
+                    {
+                        if (sensor.Value != null)
+                        {
+                            _dClock = (double)sensor.Value;
+                        }
+                    }
+                }
+            }
         }
-        return gpuUsage;
+        return (_dTemperature, _dUsage, _dClock);
     }
 
-
-
-// using System;
-// using OpenHardwareMonitor.Hardware;
-
-// class Program
-// {
-//     static void Main()
-//     {
-//         Computer computer = new Computer { GPUEnabled = true };
-//         computer.Open();
-        
-//         foreach (var hardwareItem in computer.Hardware)
-//         {
-//             if (hardwareItem.HardwareType == HardwareType.GpuNvidia || hardwareItem.HardwareType == HardwareType.GpuAti)
-//             {
-//                 hardwareItem.Update();
-//                 foreach (var sensor in hardwareItem.Sensors)
-//                 {
-//                     if (sensor.SensorType == SensorType.Load)
-//                     {
-//                         Console.WriteLine($"{sensor.Name}: {sensor.Value}%");
-//                     }
-//                 }
-//             }
-//         }
-
-//         computer.Close();
-//     }
-// }
-
-
-
-
+    public static (double dTemperature, double dUsage, double dClock) GetGpuInfo(Computer computer)
+    {
+        double _dTemperature = 0.0;
+        double _dUsage       = 0.0;
+        double _dClock       = 0.0;
+        foreach (IHardware hardware in computer.Hardware)
+        {
+            // GPU に関連するハードウェアかチェック
+            if (hardware.HardwareType == HardwareType.GpuNvidia || hardware.HardwareType == HardwareType.GpuAmd)
+            {
+                hardware.Update(); // センサーを更新
+                // GPU センサー情報の取得
+                foreach (ISensor sensor in hardware.Sensors)
+                {
+                    // Console.WriteLine($"{sensor.Name}: {sensor.SensorType}  {sensor.Value}%");
+                    // センサーの種類が温度、使用率、クロックなどの場合
+                    if (sensor.SensorType == SensorType.Temperature && sensor.Name.Equals("GPU Core"))
+                    {
+                        if (sensor.Value != null)
+                        {
+                            _dTemperature = (double)sensor.Value;
+                        }
+                    }
+                    if (sensor.SensorType == SensorType.Load && sensor.Name.Equals("GPU Memory"))
+                    {
+                        if (sensor.Value != null)
+                        {
+                            _dUsage = (double)sensor.Value;
+                        }
+                    }
+                    if (sensor.SensorType == SensorType.Clock && sensor.Name.Equals("GPU Core"))
+                    {
+                        if (sensor.Value != null)
+                        {
+                            _dClock = (double)sensor.Value;//MHz
+                        }
+                    }
+                    // if (sensor.SensorType == SensorType.Clock && sensor.Name.Equals("GPU Memory"))
+                    // {
+                    //     if (sensor.Value != null)
+                    //     {
+                    //         _dClock = (double)sensor.Value;//MHz
+                    //     }
+                    // }
+                    // if (sensor.SensorType == SensorType.Throughput && sensor.Name.Equals("GPU PCIe Rx"))
+                    // {
+                    //     if (sensor.Value != null)
+                    //     {
+                    //         _dClock = (double)sensor.Value;//
+                    //     }
+                    // }
+                    // if (sensor.SensorType == SensorType.Throughput && sensor.Name.Equals("GPU PCIe Tx"))
+                    // {
+                    //     if (sensor.Value != null)
+                    //     {
+                    //         _dClock = (double)sensor.Value;//
+                    //     }
+                    // }
+                }
+            }
+        }
+        return (_dTemperature, _dUsage, _dClock);
+    }
 }
-

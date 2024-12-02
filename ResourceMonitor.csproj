@@ -11,8 +11,10 @@
       <Watch Include="*.xaml"/>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MaterialDesignThemes" Version="5.1.0" />
     <PackageReference Include="System.Management" Version="9.0.0" />
+    <Reference Include="LibreHardwareMonitorLib">
+      <HintPath>lib/LibreHardwareMonitorLib.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

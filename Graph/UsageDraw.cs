@@ -22,7 +22,8 @@ public class UsageGraph
     /// グラフの下地を描画する
     /// </summary>
     /// <param name="_Targetcavas">描画対象のcanvas</param>
-    public static void BaseDraw_Usage(Canvas _Targetcavas)
+    /// <param name="_strTitle">表示するタイトル</param>
+    public static void BaseDraw_Usage(Canvas _Targetcavas, string _strTitle)
     {
 
         for (Int16 i = 0; i < Define.CPUGPU_GAGE_COUNT; i++)
@@ -61,8 +62,8 @@ public class UsageGraph
                 // TextBlockの生成
                 TextBlock scaletextBlock = new TextBlock
                 {
-                    Text = (m_iOnebarvalue * (i+1)).ToString(),
-                    FontSize   = 5,
+                    Text       = (m_iOnebarvalue * (i+1)).ToString(),
+                    FontSize   = Define.FONTSIZE1,
                     Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#ffffff")),
                 };
                 // 位置を設定
@@ -72,6 +73,19 @@ public class UsageGraph
                 _Targetcavas.Children.Add(scaletextBlock);
             }
         }
+
+        // TextBlock(タイトル部分)の生成
+        TextBlock textBlock1 = new TextBlock
+        {
+            Text       = _strTitle,
+            FontSize   = Define.FONTSIZE2,
+            Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#b7c939")),
+        };
+        // 位置を設定
+        Canvas.SetLeft(textBlock1, m_iBarStartX);
+        Canvas.SetTop(textBlock1,  0);
+        // Canvasに追加
+        _Targetcavas.Children.Add(textBlock1);
     }
 
     /// <summary>
@@ -79,8 +93,7 @@ public class UsageGraph
     /// </summary>
     /// <param name="_Targetcavas">描画対象のcanvas</param>
     /// <param name="_dUsagePercentage">使用率</param>
-    /// <param name="_strTitle">表示するタイトル</param>
-    public static void Draw_Usage(Canvas _Targetcavas, double _dUsagePercentage, string _strTitle)
+    public static void Draw_Usage(Canvas _Targetcavas, double _dUsagePercentage)
     {
         _Targetcavas.Children.Clear();
         bool bEndFlag = false;
@@ -124,35 +137,18 @@ public class UsageGraph
             }
         }
 
-        // TextBlock(タイトル部分)の生成
-        TextBlock textBlock1 = new TextBlock
-        {
-            Text       = _strTitle,
-            FontSize   = 15,
-            Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#b7c939")),
-        };
-        // 位置を設定
-        Canvas.SetLeft(textBlock1, m_iBarStartX);
-        Canvas.SetTop(textBlock1,  0);
-        // Canvasに追加
-        _Targetcavas.Children.Add(textBlock1);
-
-        // 最初の TextBlock の実際の幅を取得するために測定
-        textBlock1.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        double textBlock1Width = textBlock1.DesiredSize.Width;
-
         // 2つ目のTextBlock(使用率部分)の生成
         TextBlock textBlock2 = new TextBlock
         {
             Text          = $"{_dUsagePercentage:F1}%",
-            FontSize      = 15,
+            FontSize      = Define.FONTSIZE2,
             Width         = 45,
             TextAlignment = TextAlignment.Right,
             Foreground    = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#b7c939")),
         };
 
         // 位置を最初の TextBlock の右端に設定
-        Canvas.SetLeft(textBlock2, m_iBarStartX + textBlock1Width);
+        Canvas.SetLeft(textBlock2, m_iBarStartX + 80);
         Canvas.SetTop(textBlock2, 0);
 
         // Canvas に追加
