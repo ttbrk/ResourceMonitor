@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Management;
 using System.Windows;
+using System.Windows.Threading;
 using LibreHardwareMonitor.Hardware;
 
 namespace ResourceMonitor;
@@ -18,7 +19,6 @@ public static class Define
     public const Int16 FONTSIZE1         = 5;      //フォントサイズ（小）
     public const Int16 FONTSIZE2         = 15;     //フォントサイズ（大）
 }
-
 
 public class Utility
 {
@@ -111,7 +111,7 @@ public class Utility
                 // GPU センサー情報の取得
                 foreach (ISensor sensor in hardware.Sensors)
                 {
-                    // Console.WriteLine($"{sensor.Name}: {sensor.SensorType}  {sensor.Value}%");
+                    Console.WriteLine($"{sensor.Name}: {sensor.SensorType}  {sensor.Value}%");
                     // センサーの種類が温度、使用率、クロックなどの場合
                     if (sensor.SensorType == SensorType.Temperature && sensor.Name.Equals("GPU Core"))
                     {

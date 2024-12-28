@@ -11,6 +11,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Management;
 using System.Diagnostics;
+using System.Windows.Threading;
 namespace ResourceMonitor;
 
 /// <summary>
@@ -30,8 +31,8 @@ public partial class MainWindow : Window
     private static double m_dGPUTemperature;
     private static double m_dGPUUsage;
     private static double m_dGPUClock;
-    private const int m_iUpdateInterval = 1000; // 1秒
-
+    private const int m_iUpdateInterval = 500; // 1秒
+    private DispatcherTimer timer;
     public MainWindow()
     {
         InitializeComponent();
@@ -45,6 +46,15 @@ public partial class MainWindow : Window
         MemoryGraph.BaseDraw_Memory(MemoryGraphBaseCanvas, "Memory Usage :");
         UsageGraph.BaseDraw_Usage(CPUGraphBaseCanvas, "CPU Usage :");
         UsageGraph.BaseDraw_Usage(GPUGraphBaseCanvas, "GPU Usage :");
+
+        // タイマーの初期化
+        timer = new DispatcherTimer();
+        timer.Interval = TimeSpan.FromMilliseconds(100); // 1秒ごとに更新
+        timer.Tick += Timer_Tick;
+        timer.Start();
+        // 初期表示
+        UpdateTime();
+
         StartMonitoring();
     }
 
@@ -58,12 +68,6 @@ public partial class MainWindow : Window
                 // データの更新
                 Dispatcher.Invoke(() =>
                 {
-                    // if (99.0 < m_dMemoryUsagePercentage)
-                    // {
-                    //     m_dMemoryUsagePercentage = 0.0;
-                    // }
-                    // m_dMemoryUsagePercentage = m_dMemoryUsagePercentage + 0.5;
-                    // MemoryGraph.Draw_Memory(MemoryGraphCanvas, m_dMemoryUsagePercentage);
                     MemoryGraph.Draw_Memory(MemoryGraphCanvas, Utility.GetMemoryUsagePercentage());
 
                     var tCPUInfo = Utility.GetCpuInfo(m_computer);
@@ -83,4 +87,17 @@ public partial class MainWindow : Window
             }
         });
     }
+
+    private void Timer_Tick(object sender, EventArgs e)
+    {
+        // タイマーごとに時刻を更新
+        UpdateTime();
+    }
+
+    private void UpdateTime()
+    {
+        // 現在時刻を取得してTextBlockに表示
+        date.Text = DateTime.Now.ToString("yyyy年MM月dd日 dddd HH時mm分ss秒");
+    }
+
 }
