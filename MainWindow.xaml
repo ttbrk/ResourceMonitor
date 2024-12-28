@@ -1,0 +1,60 @@
+﻿<Window x:Class="ResourceMonitor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ResourceMonitor"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800" Background="#232442">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.5*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock x:Name="date" Text="" FontSize="25" Foreground="#f48542" Margin="5" TextAlignment="Center"
+            Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+        </TextBlock>
+
+        <Viewbox Stretch="Uniform" Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2">
+            <Canvas x:Name="MemoryGraphBaseCanvas"
+                Width="800" Height="400"
+                Background="Transparent"/>
+        </Viewbox>
+        <Viewbox Stretch="Uniform" Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2">
+            <Canvas x:Name="MemoryGraphCanvas"
+                Width="800" Height="400"
+                Background="Transparent"/>
+        </Viewbox>
+
+
+        <Viewbox Stretch="Uniform" Grid.Row="2" Grid.Column="1">
+            <Canvas x:Name="CPUGraphBaseCanvas"
+                Width="600" Height="100"
+                Background="Transparent"/>
+        </Viewbox>
+        <Viewbox Stretch="Uniform" Grid.Row="2" Grid.Column="1">
+            <Canvas x:Name="CPUGraphCanvas"
+                Width="600" Height="100"
+                Background="Transparent"/>
+        </Viewbox>
+
+
+        <Viewbox Stretch="Uniform" Grid.Row="3" Grid.Column="1">
+            <Canvas x:Name="GPUGraphBaseCanvas"
+                Width="600" Height="100"
+                Background="Transparent"/>
+        </Viewbox>
+        <Viewbox Stretch="Uniform" Grid.Row="3" Grid.Column="1">
+            <Canvas x:Name="GPUGraphCanvas"
+                Width="600" Height="100"
+                Background="Transparent"/>
+        </Viewbox>
+    </Grid>
+</Window>

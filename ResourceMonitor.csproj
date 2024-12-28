@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+  <ItemGroup>
+      <Watch Include="*.xaml"/>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Management" Version="9.0.0" />
+    <Reference Include="LibreHardwareMonitorLib">
+      <HintPath>lib/LibreHardwareMonitorLib.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
