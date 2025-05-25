@@ -1,8 +1,9 @@
 ﻿using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
+
 using ResourceMonitor.Views;
 using ResourceMonitor.ViewModels;
 using ResourceMonitor.Models;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace ResourceMonitor;
 
