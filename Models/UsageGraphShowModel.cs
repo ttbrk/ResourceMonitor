@@ -1,60 +1,88 @@
-﻿using System.Diagnostics;
-using System.Management;
 using System.Windows;
-using System.Windows.Threading;
 using LibreHardwareMonitor.Hardware;
+using System.Diagnostics;
 
-namespace ResourceMonitor;
+using ResourceMonitor.Views;
+using ResourceMonitor.ViewModels;
 
-public static class Define
+namespace ResourceMonitor.Models;
+
+// インタフェース定義
+public interface IUsageGraphShowModel
 {
-    public const Int16 VALUE_TEN         = 10;     //
-    public const Int16 VALUE_HUNDRED     = 100;    //
-    public const Int16 MEMORY_GAGE_COUNT = 50;     //メモリ使用率のゲージ数
-    public const Int16 CPUGPU_GAGE_COUNT = 20;     //CPU、GPU使用率のゲージ数
-    public const Int16 THRESHOLD_RED     = 90;     //ゲージ色（→赤）変更閾値
-    public const Int16 THRESHOLD_WHITE   = 80;     //ゲージ色（→白）変更閾値
-    public const Int16 THRESHOLD_YELLO   = 70;     //ゲージ色（→黄）変更閾値
-    public const Int16 THRESHOLD_GREEN   = 20;     //ゲージ色（→緑）変更閾値
-    public const Int16 FONTSIZE1         = 5;      //フォントサイズ（小）
-    public const Int16 FONTSIZE2         = 15;     //フォントサイズ（大）
+    public void SetTargetWindow(MainWindow window) {}
+    public void StartUsage() {}
 }
 
-public class Utility
+// 具象クラス定義
+public class UsageGraphShowModel : IUsageGraphShowModel
 {
-    //メモリ関連
-    private static PerformanceCounter m_RamCounter = new PerformanceCounter("Memory", "Available MBytes");
-    private static double m_dAvailableMemory;
-    private static ulong m_ulTotalMemory;
-    private static double m_dTotalMemoryMB;
-    private static double m_dUsedMemory;
-    private static double m_dMemoryUsagePercent;
+    private MainWindow? _csWindow;
 
-    //CPU関連
     private static PerformanceCounter cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+    Computer m_computer;
+    private static double m_dCPUTemperature;
+    private static double m_dCPUUsage;
+    private static double m_dCPUClock;
 
-    public static double GetMemoryUsagePercentage()
+    private static double m_dGPUTemperature;
+    private static double m_dGPUUsage;
+    private static double m_dGPUClock;
+    public UsageGraphShowModel()
     {
-        // PerformanceCounter for available memory
-        m_dAvailableMemory = m_RamCounter.NextValue();
-
-        // Get total physical memory
-        ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT TotalVisibleMemorySize FROM Win32_OperatingSystem");
-        m_ulTotalMemory = 0;
-        foreach (ManagementObject obj in searcher.Get())
+        m_computer = new Computer
         {
-            m_ulTotalMemory = (ulong)obj["TotalVisibleMemorySize"];
-        }
-        // Convert total memory to MB
-        m_dTotalMemoryMB     = m_ulTotalMemory / 1024f;
-        // Calculate used memory
-        m_dUsedMemory        = m_dTotalMemoryMB - m_dAvailableMemory;
-        // Calculate memory usage percentage
-        m_dMemoryUsagePercent = m_dUsedMemory / m_dTotalMemoryMB * Define.VALUE_HUNDRED;
-        return m_dMemoryUsagePercent;
+            IsCpuEnabled = true,
+            IsGpuEnabled = true
+        };
+        m_computer.Open();
+    }
+    public void SetTargetWindow(MainWindow window)
+    {
+        _csWindow = window;
     }
 
-    public static (double dTemperature, double dUsage, double dClock) GetCpuInfo(Computer computer)
+    public void StartUsage()
+    {
+        if (_csWindow != null)
+        {
+            UsageGraph.BaseDraw_Usage(_csWindow.CPUGraphBaseCanvas, "CPU Usage :");
+            UsageGraph.BaseDraw_Usage(_csWindow.GPUGraphBaseCanvas, "GPU Usage :");
+            StartMonitoring();
+        }
+    }
+
+    private void StartMonitoring()
+    {
+        if (_csWindow != null)
+        {
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    // メモリ使用率の取得
+                    // データの更新
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        var tCPUInfo = GetCpuInfo(m_computer);
+                        m_dCPUTemperature = tCPUInfo.dTemperature;
+                        m_dCPUUsage       = tCPUInfo.dUsage;
+                        m_dCPUClock       = tCPUInfo.dClock;
+                        UsageGraph.Draw_Usage(_csWindow.CPUGraphCanvas, m_dCPUUsage);
+
+                        var tGPUInfo = GetGpuInfo(m_computer);
+                        m_dGPUTemperature = tGPUInfo.dTemperature;
+                        m_dGPUUsage       = tGPUInfo.dUsage;
+                        m_dGPUClock       = tGPUInfo.dClock;
+                        UsageGraph.Draw_Usage(_csWindow.GPUGraphCanvas, m_dGPUUsage);
+                    });
+                    Thread.Sleep(Define.UPDATE_INTERVAL);
+                }
+            });
+        }
+    }
+
+    private (double dTemperature, double dUsage, double dClock) GetCpuInfo(Computer computer)
     {
         double _dTemperature = 0.0;
         double _dUsage       = 0.0;
@@ -97,7 +125,7 @@ public class Utility
         return (_dTemperature, _dUsage, _dClock);
     }
 
-    public static (double dTemperature, double dUsage, double dClock) GetGpuInfo(Computer computer)
+    private (double dTemperature, double dUsage, double dClock) GetGpuInfo(Computer computer)
     {
         double _dTemperature = 0.0;
         double _dUsage       = 0.0;
@@ -111,7 +139,7 @@ public class Utility
                 // GPU センサー情報の取得
                 foreach (ISensor sensor in hardware.Sensors)
                 {
-                    Console.WriteLine($"{sensor.Name}: {sensor.SensorType}  {sensor.Value}%");
+                    // Console.WriteLine($"{sensor.Name}: {sensor.SensorType}  {sensor.Value}%");
                     // センサーの種類が温度、使用率、クロックなどの場合
                     if (sensor.SensorType == SensorType.Temperature && sensor.Name.Equals("GPU Core"))
                     {
