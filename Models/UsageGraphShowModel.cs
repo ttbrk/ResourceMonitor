@@ -3,7 +3,6 @@ using LibreHardwareMonitor.Hardware;
 using System.Diagnostics;
 
 using ResourceMonitor.Views;
-using ResourceMonitor.ViewModels;
 
 namespace ResourceMonitor.Models;
 
