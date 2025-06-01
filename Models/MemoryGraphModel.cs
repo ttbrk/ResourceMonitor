@@ -58,7 +58,7 @@ public class MemoryGraphShowModel : IMemoryGraphShowModel
                     {
                         MemoryGraph.Draw_Memory(_csWindow.MemoryGraphCanvas, GetMemoryUsagePercentage());
                     });
-                    Thread.Sleep(Define.UPDATE_INTERVAL);
+                    Thread.Sleep(Define.MEMORY_UPDATE_INTERVAL);
                 }
             });
         }

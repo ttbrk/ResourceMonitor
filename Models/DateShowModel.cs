@@ -23,7 +23,7 @@ public class DateShowModel : IDateShowModel
     public void StartDate()
     {
         // タイマーの初期化
-        timer.Interval = TimeSpan.FromMilliseconds(100); // 1秒ごとに更新
+        timer.Interval = TimeSpan.FromMilliseconds(Define.DATE_UPDATE_INTERVAL);
         timer.Tick += Timer_Tick;
         timer.Start();
         // 初期表示

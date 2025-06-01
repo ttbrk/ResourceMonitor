@@ -16,7 +16,7 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
 
     public MainWindowViewModel()
     {
-        _strDate = "";
+        _strDate =string.Empty;
     }
     public string strDate {
         get{ return _strDate; }

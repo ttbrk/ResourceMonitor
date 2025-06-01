@@ -7,6 +7,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resource/winapp.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
       <Watch Include="*.xaml" />
   </ItemGroup>

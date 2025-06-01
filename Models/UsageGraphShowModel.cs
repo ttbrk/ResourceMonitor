@@ -75,7 +75,7 @@ public class UsageGraphShowModel : IUsageGraphShowModel
                         m_dGPUClock       = tGPUInfo.dClock;
                         UsageGraph.Draw_Usage(_csWindow.GPUGraphCanvas, m_dGPUUsage);
                     });
-                    Thread.Sleep(Define.UPDATE_INTERVAL);
+                    Thread.Sleep(Define.USAGE_UPDATE_INTERVAL);
                 }
             });
         }
